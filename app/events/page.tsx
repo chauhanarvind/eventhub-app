@@ -14,9 +14,12 @@ const EventPage = () => {
   useEffect(() => {
     async function fetchEvents() {
       try {
-        const response = await fetch("/publicEvents.json", {
-          method: "GET",
-        });
+        const response = await fetch(
+          "https://ec2-34-229-185-121.compute-1.amazonaws.com/Items",
+          {
+            method: "GET",
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch events");
         }
