@@ -24,6 +24,7 @@ const EventPage = () => {
           throw new Error("Failed to fetch events");
         }
         const data: EventFormData[] = await response.json();
+        console.log(data);
         setResult(data);
       } catch (err: any) {
         setError(err.message);
