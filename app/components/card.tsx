@@ -4,7 +4,6 @@ import styles from "./card.module.css";
 import EventFormData from "../interface/eventFormData";
 import Heart from "./heart";
 import { useRouter } from "next/navigation";
-import EventDetail from "../events/detail/page";
 
 interface Props {
   event: EventFormData;
@@ -24,46 +23,45 @@ const Card = ({
   index,
 }: Props) => {
   const [heartClicked, setHeartClicked] = useState(false);
-
   const router = useRouter();
 
-  const maxname = 40;
-  const maxdesc = 80;
-  const maxlocation = 40;
+  const maxNameLength = 40;
+  const maxDescLength = 80;
+  const maxLocationLength = 40;
 
   const name =
-    event.name.length > maxname
-      ? event.name.slice(0, maxname) + "..."
+    event.name.length > maxNameLength
+      ? `${event.name.slice(0, maxNameLength)}...`
       : event.name;
 
   const description =
-    event.description.length > maxdesc
-      ? event.description.slice(0, maxdesc) + "..."
+    event.description.length > maxDescLength
+      ? `${event.description.slice(0, maxDescLength)}...`
       : event.description;
 
   const location =
-    event.location.length > maxlocation
-      ? event.location.slice(0, maxlocation) + "..."
+    event.location.length > maxLocationLength
+      ? `${event.location.slice(0, maxLocationLength)}...`
       : event.location;
 
-  const handleCardClick = (e: any) => {
-    e.preventDefault();
+  // Add 20 days to the event time
+  const time: string = new Date(
+    new Date(event.time).setDate(new Date(event.time).getDate() + 60)
+  ).toDateString();
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     localStorage.setItem("event", JSON.stringify(event));
-    // Redirect to another page
     router.push("/events/detail");
   };
 
   useEffect(() => {
-    if (favs.length !== 0) {
-      const eventExists = (arr: EventFormData[], id: string) => {
-        return arr.some((event) => event.eventID === id);
-      };
+    if (favs.length) {
+      const eventExists = (arr: EventFormData[], id: string) =>
+        arr.some((favEvent) => favEvent.eventID === id);
       setHeartClicked(eventExists(favs, event.eventID));
     }
   }, [favs, event.eventID]);
-
-  const time: string = new Date(event.time).toDateString();
 
   async function handleHeartClicked() {
     const newHeartState = !heartClicked;
@@ -71,46 +69,30 @@ const Card = ({
 
     try {
       const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
 
-      if (!token) {
-        throw new Error("No token found");
-      }
-
-      let response;
-      if (newHeartState) {
-        response = await fetch(
-          `https://ec2-34-229-185-121.compute-1.amazonaws.com/api/addfav/${event.eventID}`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-      } else {
-        response = await fetch(
-          `https://ec2-34-229-185-121.compute-1.amazonaws.com/api/delfav/${event.eventID}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (parentComponent === "watchList") {
-          const updatedEvents = events.filter((_, idx) => idx !== index);
-          setEvents(updatedEvents);
+      const response = await fetch(
+        `https://ec2-34-229-185-121.compute-1.amazonaws.com/api/${
+          newHeartState ? "addfav" : "delfav"
+        }/${event.eventID}`,
+        {
+          method: newHeartState ? "POST" : "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
-      }
+      );
 
-      if (!response.ok) {
-        throw new Error("Failed to update favorites");
+      if (!response.ok) throw new Error("Failed to update favorites");
+
+      // Remove event from list if it's being unfavorited and we're in the watchlist
+      if (!newHeartState && parentComponent === "watchList") {
+        const updatedEvents = events.filter((_, idx) => idx !== index);
+        setEvents(updatedEvents);
       }
     } catch (err: any) {
-      console.log("Error updating favorites:", err.message);
+      console.error("Error updating favorites:", err.message);
       setHeartClicked(!newHeartState);
     }
   }
@@ -140,6 +122,11 @@ const Card = ({
           />
         </div>
       </div>
+      {event.link && (
+        <a href={event.link} className={styles.link}>
+          View More
+        </a>
+      )}
     </div>
   );
 };
