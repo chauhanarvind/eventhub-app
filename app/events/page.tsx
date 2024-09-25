@@ -15,7 +15,7 @@ const EventPage = () => {
     async function fetchEvents() {
       try {
         const response = await fetch(
-          "http://ec2-34-229-185-121.compute-1.amazonaws.com/Items",
+          "https://ec2-34-229-185-121.compute-1.amazonaws.com/api/Items",
           {
             method: "GET",
           }
