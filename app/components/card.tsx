@@ -45,9 +45,9 @@ const Card = ({
       : event.location;
 
   // Add 20 days to the event time
-  console.log(event.time);
-  const time: string = new Date(
-    new Date(event.time).setDate(new Date(event.time).getDate() + 60)
+  // console.log(event.time);
+  const date: string = new Date(
+    new Date(event.date).setDate(new Date(event.date).getDate() + 60)
   ).toDateString();
 
   const handleCardClick = (e: React.MouseEvent) => {
@@ -112,7 +112,7 @@ const Card = ({
       <div className={styles.cardBody}>
         <h5 className={styles.cardTitle}>{name}</h5>
         <p className={styles.cardText}>{description}</p>
-        <p className={styles.cardText}>{time}</p>
+        <p className={styles.cardText}>{date}</p>
         <p className={styles.cardText}>{location}</p>
 
         <div className={styles.heart}>

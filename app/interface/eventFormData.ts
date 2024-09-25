@@ -4,6 +4,7 @@ interface EventFormData {
   description: string;
   location: string;
   time: string;
+  date: string;
   source: string;
   link?: string | null; // Optional field, allow null
   category?: string | null; // Optional field, allow null
