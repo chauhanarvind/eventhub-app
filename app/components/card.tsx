@@ -45,6 +45,7 @@ const Card = ({
       : event.location;
 
   // Add 20 days to the event time
+  console.log(event.time);
   const time: string = new Date(
     new Date(event.time).setDate(new Date(event.time).getDate() + 60)
   ).toDateString();
